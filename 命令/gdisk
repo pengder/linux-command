@@ -1,0 +1,69 @@
+gdisk -l [设备]
+
+　　gdisk又叫GPT fdisk，算是fdisk的延伸吧，主要使用的是GPT分区类型，用来划分容量大于2T的硬盘。
+
+　　扩展1：分区类型GPT和MBR。GPT最大支持18EB（1EB=1024PB，1PB=1024TB），MBR最大支持2TB。
+
+　　扩展2（了解）：GPT，全局唯一标识分区表（GUID Partition Table），它使用128位GUID来唯一标识每个磁盘和分区。与MBR存在单一故障点不同，GPT提供分区表信息的冗余，一个在磁盘头部，一个在磁盘尾部；它通过CRC校验来检测GPT头和分区表中错误与损坏。默认一个硬盘支持128个分区（可以更多）。
+
+(1).选项
+
+只有一个-l选项，列出一个磁盘的所有分区表
+
+(2).操作菜单说明
+
+　　主要用到的几个和fdisk差不多：n、p、q、w。
+
+　　完整的菜单如下：
+
+[root@xuexi ~]# gdisk /dev/sdb
+GPT fdisk (gdisk) version 0.8.10
+ 
+Partition table scan:
+  MBR: MBR only
+  BSD: not present
+  APM: not present
+  GPT: not present
+ 
+***************************************************************
+Found invalid GPT and valid MBR; converting MBR to GPT format
+in memory. THIS OPERATION IS POTENTIALLY DESTRUCTIVE! Exit by
+typing 'q' if you don't want to convert your MBR partitions
+to GPT format!
+***************************************************************
+ 
+ 
+Command (? for help): p　　//显示当前磁盘的分区表
+Disk /dev/sdb: 4194304 sectors, 2.0 GiB
+Logical sector size: 512 bytes
+Disk identifier (GUID): 4E50861F-8360-4B97-986E-51F4080BF678
+Partition table holds up to 128 entries
+First usable sector is 34, last usable sector is 4194270
+Partitions will be aligned on 2048-sector boundaries
+Total free space is 2097085 sectors (1024.0 MiB)
+ 
+Number  Start (sector)    End (sector)  Size       Code  Name
+   1            2048         2099199   1024.0 MiB  8300  Linux filesystem
+ 
+Command (? for help): d　　//删除一个分区
+Using 1
+ 
+Command (? for help): n　　//新建一个分区
+Partition number (1-128, default 1):
+First sector (34-4194270, default = 2048) or {+-}size{KMGTP}: 　　 //开始扇区
+Last sector (2048-4194270, default = 4194270) or {+-}size{KMGTP}: +1G　　//终止扇区
+Current type is 'Linux filesystem'
+Hex code or GUID (L to show codes, Enter = 8300): 　　//分区类型
+Changed type of partition to 'Linux filesystem'
+ 
+Command (? for help): w　　//保存并退出
+ 
+Final checks complete. About to write GPT data. THIS WILL OVERWRITE EXISTING
+PARTITIONS!!
+ 
+Do you want to proceed? (Y/N): y　　//确认覆盖
+OK; writing new GUID partition table (GPT) to /dev/sdb.
+Warning: The kernel is still using the old partition table.
+The new table will be used at the next reboot.　　//提示在下次重启后生效
+The operation has completed successfully.
+　　额，好像并不需要。后面该格式化的格式化（mkfs.xfs，在此之前注意有没有挂载，挂载的需要卸载再格式化），该挂载的挂载。
